@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/../kafka-demo-stream/pom.xml" />
+        <option value="$PROJECT_DIR$/../file-agent-kafka-clinet/target/maven-archiver/pom.properties" />
+        <option value="$PROJECT_DIR$/../file-agent-kafka-clinet/pom.xml" />
+        <option value="$PROJECT_DIR$/../file-agent-kafka-client/pom.xml" />
+        <option value="$PROJECT_DIR$/file-agent-kafka-client/pom.xml" />
+        <option value="$PROJECT_DIR$/file-system-producer/pom.xml" />
+        <option value="$PROJECT_DIR$/kafka-demo-stream/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_3" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/classes" />
+  </component>
+</project>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/file-agent-kafka-client/file-agent-kafka-client.iml" filepath="$PROJECT_DIR$/file-agent-kafka-client/file-agent-kafka-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/file-system-producer/file-system-producer.iml" filepath="$PROJECT_DIR$/file-system-producer/file-system-producer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka-demo.iml" filepath="$PROJECT_DIR$/kafka-demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka-demo-stream/kafka-demo-stream.iml" filepath="$PROJECT_DIR$/kafka-demo-stream/kafka-demo-stream.iml" />
+    </modules>
+  </component>
+</project>
