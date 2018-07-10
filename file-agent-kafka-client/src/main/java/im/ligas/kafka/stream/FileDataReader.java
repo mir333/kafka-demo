@@ -16,8 +16,8 @@
  */
 package im.ligas.kafka.stream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -26,6 +26,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.kafka.connect.json.JsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,6 @@ import java.util.Properties;
  */
 public class FileDataReader {
 
-    private static final Gson GSON = new GsonBuilder().create();
     private static Logger LOG = LoggerFactory.getLogger(FileDataReader.class);
 
     private final static String APP_ID = "file-data-agent-local-fs";
@@ -68,7 +68,7 @@ public class FileDataReader {
 
     static void runProducer(Collection<File> files) throws InterruptedException {
 
-        final Producer<String, String> producer = createProducer();
+        final Producer<String, JsonNode> producer = createProducer();
         long time = System.currentTimeMillis();
         try {
             files.forEach(file -> {
@@ -76,7 +76,11 @@ public class FileDataReader {
                 String key = DigestUtils.sha1Hex(absolutePath);
                 FileData data = fileDataExtractor.getFileData(file);
                 LOG.debug("processing file {}", key);
-                final ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, key, GSON.toJson(data));
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode dataNode = objectMapper.valueToTree(data);
+
+                final ProducerRecord<String, JsonNode> record = new ProducerRecord<>(TOPIC, key, dataNode);
                 producer.send(record, (metadata, exception) -> {
                     long elapsedTime = System.currentTimeMillis() - time;
                     if (metadata != null) {
@@ -93,12 +97,12 @@ public class FileDataReader {
         }
     }
 
-    private static Producer<String, String> createProducer() {
+    private static Producer<String, JsonNode> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, APP_ID);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
 }

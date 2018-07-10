@@ -7,3 +7,6 @@
 
 ./bin/kafka-console-consumer  --bootstrap-server localhost:9092 --topic  basic-file-data --from-beginning
 ./bin/kafka-console-consumer  --bootstrap-server localhost:9092 --topic processed-file-data --from-beginning
+
+./bin/confluent  stop connect
+./bin/connect-standalone /data/git/mir333/kafka-demo/etc/connect-standalone.properties /data/git/mir333/kafka-demo/etc/elastic.properties
