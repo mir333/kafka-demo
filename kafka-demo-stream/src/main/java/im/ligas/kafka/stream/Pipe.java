@@ -16,11 +16,13 @@
  */
 package im.ligas.kafka.stream;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
@@ -31,8 +33,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class Pipe {
 
-
-    private static final Gson GSON = new GsonBuilder().create();
+    private static Logger LOG = LoggerFactory.getLogger(Pipe.class);
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     public static void main(String[] args) throws Exception {
         Properties props = new Properties();
@@ -46,9 +48,15 @@ public class Pipe {
         builder.stream("basic-file-data")
                 .map((key, value) -> {
                     String json = (String) value;
-                    FileData fileData = GSON.fromJson(json, FileData.class);
-                    fileData.setAbsolutePath("/tmp/"+key+".bak");
-                    return new KeyValue<>(key, GSON.toJson(fileData));
+                    FileData fileData = null;
+                    try {
+                        fileData = mapper.readValue(json, FileData.class);
+                        fileData.setFileName(key + ".bak");
+                        value = mapper.writeValueAsString(fileData);
+                    } catch (IOException e) {
+                        LOG.warn("could not process {}", value);
+                    }
+                    return new KeyValue<>(key, value);
                 }).to("processed-file-data");
 
         final Topology topology = builder.build();
