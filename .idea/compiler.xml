@@ -11,12 +11,5 @@
         <module name="kafka-demo-stream" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="file-agent-kafka-client" target="1.8" />
-      <module name="file-system-producer" target="1.8" />
-      <module name="kafka-demo" target="1.5" />
-      <module name="kafka-demo-stream" target="1.8" />
-      <module name="maven-archiver" target="1.5" />
-    </bytecodeTargetLevel>
   </component>
 </project>
