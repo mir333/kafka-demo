@@ -17,7 +17,7 @@ public class FileDataExtractor {
         fileDataBuilder.setId(DigestUtils.sha1Hex(file.getAbsolutePath()));
         fileDataBuilder.setAbsolutePath(file.getAbsolutePath());
         fileDataBuilder.setFileName(file.getName());
-        fileDataBuilder.setTempLocation("/tmp/intermediateStorage/");
+        fileDataBuilder.setTempLocation("/tmp/intermediateStorage/" + fileDataBuilder.getId());
         fileDataBuilder.setSource(System.getProperty("user.home"));
 
         try {
