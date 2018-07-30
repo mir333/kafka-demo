@@ -16,8 +16,8 @@
  */
 package im.ligas.kafka.stream;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import im.ligas.kafka.client.FileData;
+import io.confluent.kafka.serializers.KafkaAvroSerializer;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -26,7 +26,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.apache.kafka.connect.json.JsonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +43,10 @@ public class FileDataReader {
     private static Logger LOG = LoggerFactory.getLogger(FileDataReader.class);
 
     private final static String APP_ID = "file-data-agent-local-fs";
-    private final static String TOPIC = "basic-file-data";
+    private final static String TOPIC = "basic-avro-file-data";
     private final static String BOOTSTRAP_SERVERS =
             "localhost:9092";
+    private final static String SCHEMA_REGISTRY_URL = "http://127.0.0.1:8081";
 
     private static FileDataExtractor fileDataExtractor = new FileDataExtractor();
 
@@ -68,19 +68,16 @@ public class FileDataReader {
 
     static void runProducer(Collection<File> files) throws InterruptedException {
 
-        final Producer<String, JsonNode> producer = createProducer();
+        final Producer<String, FileData> producer = createProducer();
         long time = System.currentTimeMillis();
         try {
             files.forEach(file -> {
                 String absolutePath = file.getAbsolutePath();
                 String key = DigestUtils.sha1Hex(absolutePath);
-                FileData data = fileDataExtractor.getFileData(file);
+                FileData fileData = fileDataExtractor.getFileData(file);
                 LOG.debug("processing file {}", key);
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode dataNode = objectMapper.valueToTree(data);
-
-                final ProducerRecord<String, JsonNode> record = new ProducerRecord<>(TOPIC, key, dataNode);
+                final ProducerRecord<String, FileData> record = new ProducerRecord<>(TOPIC, key, fileData);
                 producer.send(record, (metadata, exception) -> {
                     long elapsedTime = System.currentTimeMillis() - time;
                     if (metadata != null) {
@@ -97,12 +94,13 @@ public class FileDataReader {
         }
     }
 
-    private static Producer<String, JsonNode> createProducer() {
+    private static Producer<String, FileData> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, APP_ID);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
+        props.put("schema.registry.url", SCHEMA_REGISTRY_URL);
         return new KafkaProducer<>(props);
     }
 }

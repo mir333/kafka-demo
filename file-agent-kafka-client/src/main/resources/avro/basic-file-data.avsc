@@ -1,0 +1,33 @@
+[
+{
+    "namespace": "im.ligas.kafka.client",
+    "type": "record",
+    "name": "MetaData",
+	"doc": "Meta data of file like permissions, size etc.,",
+    "fields": [
+		        {"name": "created", "type": "long", "doc": "creation time of file in millis"},
+		        {"name": "lastModified", "type": "long", "doc": "last modified time of file in millis"},
+		        {"name": "lastAccessed", "type": "long", "doc": "last accessed time of file in millis"},
+		        {"name": "user", "type": "string", "doc": "name of the user who created the file"},
+		        {"name": "canRead", "type": "boolean", "doc": "File can be readable if it is set to true"},
+		        {"name": "canWrite", "type": "boolean", "doc": "File can be writable if it is set to true"},
+		        {"name": "canExecute", "type": "boolean", "doc": "File can be excutable if it is set to true"},
+		        {"name": "type", "type": "string", "doc": "Indicates type of a file"},
+		        {"name": "size", "type": "long", "doc": "Size of file"}
+	]
+},
+{
+    "namespace": "im.ligas.kafka.client",
+    "type": "record",
+	"name": "FileData",
+	"doc": "Avro Schema for FileData",
+	"fields": [
+		{"name": "id", "type": "string", "doc": "Unique file id" },
+	 	{"name": "absolutePath", "type": "string", "doc": "Absolute path of file" },
+		{"name": "fileName", "type": "string", "doc": "File name" },
+		{"name": "tempLocation", "type": "string", "doc": "Intermediate storage location of file" },
+		{"name": "source", "type": "string", "doc": "unique identification of source" },
+		{"name": "metaData", "type": "MetaData"}
+	   ]
+}
+]
