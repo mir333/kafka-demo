@@ -57,8 +57,8 @@ public class FileDataReader {
             throw new ConfigException("wrong input data. Please provide a full path to target folder.");
         }
 
-       // String folderName = args[0];
-        String folderName = "/home/murali/files";
+        String folderName = args[0];
+     
         File file = new File(folderName);
         if (!file.isDirectory()) {
             throw new ConfigException("Not a directory. Please provide a full path to target folder.");
