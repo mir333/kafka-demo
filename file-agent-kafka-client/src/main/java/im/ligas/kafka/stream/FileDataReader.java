@@ -18,6 +18,7 @@ package im.ligas.kafka.stream;
 
 import im.ligas.kafka.client.FileData;
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import io.confluent.kafka.serializers.KafkaAvroSerializerConfig;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 /**
  * In this example, we implement a simple LineSplit program using the high-level Streams DSL
@@ -43,7 +45,7 @@ public class FileDataReader {
     private static Logger LOG = LoggerFactory.getLogger(FileDataReader.class);
 
     private final static String APP_ID = "file-data-agent-local-fs";
-    private final static String TOPIC = "basic-avro-file-data";
+    private final static String TOPIC = "basic-file-avro-data";
     private final static String BOOTSTRAP_SERVERS =
             "localhost:9092";
     private final static String SCHEMA_REGISTRY_URL = "http://127.0.0.1:8081";
@@ -56,6 +58,7 @@ public class FileDataReader {
         }
 
         String folderName = args[0];
+     
         File file = new File(folderName);
         if (!file.isDirectory()) {
             throw new ConfigException("Not a directory. Please provide a full path to target folder.");
@@ -78,6 +81,15 @@ public class FileDataReader {
                 LOG.debug("processing file {}", key);
 
                 final ProducerRecord<String, FileData> record = new ProducerRecord<>(TOPIC, key, fileData);
+
+                try{
+                    //Copying file from source system to intermediate system.
+                    //In our demo we are using native file system, in the actual it is going to be s3 or hdfs (Need to fix).
+                    FileUtils.copyFile(file, new File(fileData.getTempLocation() + fileData.getId()));
+                }catch (Exception e){
+                    LOG.error("Error while copying file from " + file.getAbsolutePath() + " to " + fileData.getTempLocation());
+                }
+
                 producer.send(record, (metadata, exception) -> {
                     long elapsedTime = System.currentTimeMillis() - time;
                     if (metadata != null) {
@@ -87,6 +99,7 @@ public class FileDataReader {
                         LOG.warn("Could not send message", exception);
                     }
                 });
+
             });
         } finally {
             producer.flush();
@@ -100,7 +113,8 @@ public class FileDataReader {
         props.put(ProducerConfig.CLIENT_ID_CONFIG, APP_ID);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaAvroSerializer.class.getName());
-        props.put("schema.registry.url", SCHEMA_REGISTRY_URL);
+        props.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, "http://localhost:8081");
+
         return new KafkaProducer<>(props);
     }
 }

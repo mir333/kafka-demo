@@ -4,7 +4,6 @@ import im.ligas.kafka.client.FileData;
 import im.ligas.kafka.client.MetaData;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +16,7 @@ public class FileDataExtractor {
         fileDataBuilder.setId(DigestUtils.sha1Hex(file.getAbsolutePath()));
         fileDataBuilder.setAbsolutePath(file.getAbsolutePath());
         fileDataBuilder.setFileName(file.getName());
-        fileDataBuilder.setTempLocation("/tmp/intermediateStorage/" + fileDataBuilder.getId());
+        fileDataBuilder.setTempLocation("/tmp/intermediateStorage/");
         fileDataBuilder.setSource(System.getProperty("user.home"));
 
         try {
@@ -38,10 +37,10 @@ public class FileDataExtractor {
             MetaData metaData= metaDataBuilder.build();
             fileDataBuilder.setMetaData(metaData);
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         FileData fileData= fileDataBuilder.build();
         return fileData;
     }
